@@ -49,8 +49,8 @@
         "js": ["js/extractors/single_exam.js"],
         "run_at": "document_end"
     }, {
-        "matches": ["https://*.up.pt/*fest_geral*"],
-        "js": ["js/scripts/profile_pic.js", "js/lib/jquery.min.js"],
+        "matches": ["https://sigarra.up.pt/*fest_geral*"],
+        "js": ["js/scripts/profile_pic.js", "js/lib/jquery.min.js", "js/lib/ics.deps.min.js"],
         "run_at": "document_end"
     }],
     "permissions": [
