@@ -8,15 +8,7 @@ class Moodle extends Extractor {
     }
 
     attachIfPossible() {
-        $(".hasevent").each((index, td) => {
-            let popupContent = $(`<div>${$(td).attr("data-core_calendar-popupcontent")}</div>`);
-            let newPopupContent = "";
-            popupContent.find("div").each((index, div) => {
-                div = $(div);
-                newPopupContent += this.getNewDiv(div, Moodle.getEvent(div));
-            });
-            $(td).attr("data-core_calendar-popupcontent", newPopupContent);
-        });
+        this._getEventData(4945);
     }
 
     structure() {
@@ -88,6 +80,45 @@ class Moodle extends Extractor {
             to: d,
             location: "Moodle"
         };
+    }
+
+    /**
+     * @desc Returns the current session key
+     * @return {String} session key
+     */
+    _getSessionID() {
+        let url = document.evaluate('//*[@id="footer-left"]/div/div/a[2]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.attributes[0].value;
+        return url.slice(url.indexOf('=') + 1);
+    }
+
+    _getEventData(eventID) {
+        let reqUrl = `https://moodle.up.pt/lib/ajax/service.php?sesskey=${this._getSessionID()}&info=core_calendar_get_calendar_event_by_id`;
+        
+        let myBody = {
+            "index": 0, 
+            "methodname": 
+            "core_calendar_get_calendar_event_by_id", 
+            "args": {
+                "eventid": eventID
+            }
+        };
+        
+        fetch(reqUrl, {
+            method: 'POST',
+            headers: {
+                'Accept':'application/json, text/javascript, */*; q=0.01',
+                'Content-Type':'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify([myBody]),
+            mode: 'cors',
+            credentials: 'include',
+            referrerPolicy: 'no-referrer-when-downgrade'
+        }).then(function(response) {
+            response.json().then(json => {
+                return json;
+              });
+        });
     }
 }
 
