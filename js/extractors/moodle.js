@@ -180,8 +180,8 @@ class Moodle extends Extractor {
                             if(day.hasevents) {
                                 day.events.forEach(event => {
                                     events.push({
-                                        from: new Date(event.timestart),
-                                        to: new Date(event.timestart + event.timeduration),
+                                        from: new Date(event.timestart*1000),
+                                        to: new Date((event.timestart + event.timeduration)*1000),
                                         download: false,
                                         location: undefined,
                                         // extra information
