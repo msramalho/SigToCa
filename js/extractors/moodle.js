@@ -8,6 +8,7 @@ class Moodle extends Extractor {
     }
 
     attachIfPossible() {
+    
         // sidebar mini calendars
         $('[data-template="core_calendar/month_mini"] > .calendarwrapper').each((index, calendarWrapper) => {
             // get month and year
@@ -17,10 +18,20 @@ class Moodle extends Extractor {
             if(month === undefined || year === undefined) {
                 // TODO
                 // throw
-            }
+			}
+			
+            this._getMonthEvents(month, year).then(events => {
+				let $saveBtn = $(`<a class="calendarBtn" title="Save exams to your Calendar"><img src="${chrome.extension.getURL("icons/calendar.svg")}"/></a>`);
 
-            this._getMonthEvents(month, year);
-
+                if(events.length > 0) {
+                    $saveBtn.click(() => {
+                        handleEvents(this, events);
+                    });
+        
+                    $(calendarWrapper).parent().append($saveBtn);
+                }
+            });
+            
         });
     }
 
@@ -135,69 +146,61 @@ class Moodle extends Extractor {
     }
 
     _getMonthEvents(month, year) {
-        // compute unix timestamp (UTC) for the months first day
-        // getTime returns timestamp in UTC (miliseconds)
-        let timestamp = new Date(`${year}/${month}/1`).getTime() / 1000;
-
-        let reqUrl = `https://moodle.up.pt/lib/ajax/service.php?sesskey=${this._getSessionID()}&info=core_calendar_get_calendar_monthly_view`; 
+        return new Promise(resolve => {
+            let reqUrl = `https://moodle.up.pt/lib/ajax/service.php?sesskey=${this._getSessionID()}&info=core_calendar_get_calendar_monthly_view`; 
         
-        fetch(reqUrl, {
-            credentials:'include',
-            headers:{},
-            referrerPolicy:"no-referrer-when-downgrade",
-            method:'POST',
-            mode:'cors',
-            body:JSON.stringify([{
-                index:0,
-                methodname: 'core_calendar_get_calendar_monthly_view', 
-                args: {
-                    year:year,
-                    month:month,
-                    courseid:1,
-                    categoryid:0,
-                    includenavigation:false,
-                    mini:true
-                }
-            }]),
-        }).then(response => {
-            response.json().then( json => {
-                let responseJson = json[0]; // expected a single element size array
-                if(responseJson.error) {
-                    // something went wrong
-                }
-
-                let $saveBtn = $(`<a class="calendarBtn" title="Save exams to your Calendar"><img src="${chrome.extension.getURL("icons/calendar.svg")}"/></a>`);
-
-                let events = [];
-                responseJson.data.weeks.forEach(week => {
-                    week.days.forEach(day => {
-                        if(day.hasevents) {
-                            day.events.forEach(event => {
-                                events.push({
-                                    from: new Date(event.timestart),
-                                    to: new Date(event.timestart + event.timeduration),
-                                    download: false,
-                                    location: undefined,
-                                    // extra information
-                                    name: event.name,
-                                    description: event.description,
-                                    type: event.eventtype,
-                                    url: event.viewurl
+            fetch(reqUrl, {
+                credentials:'include',
+                headers:{},
+                referrerPolicy:"no-referrer-when-downgrade",
+                method:'POST',
+                mode:'cors',
+                body:JSON.stringify([{
+                    index:0,
+                    methodname: 'core_calendar_get_calendar_monthly_view', 
+                    args: {
+                        year:year,
+                        month:month,
+                        courseid:1,
+                        categoryid:0,
+                        includenavigation:false,
+                        mini:true
+                    }
+                }]),
+            }).then(response => {
+                response.json().then( json => {
+                    let responseJson = json[0]; // expected a single element size array
+                    if(responseJson.error) {
+                        // something went wrong
+                    }
+    
+                    let events = [];
+                    responseJson.data.weeks.forEach(week => {
+                        week.days.forEach(day => {
+                            if(day.hasevents) {
+                                day.events.forEach(event => {
+                                    events.push({
+                                        from: new Date(event.timestart),
+                                        to: new Date(event.timestart + event.timeduration),
+                                        download: false,
+                                        location: undefined,
+                                        // extra information
+                                        name: event.name,
+                                        description: event.description,
+                                        type: event.eventtype,
+                                        url: event.viewurl
+                                    });
                                 });
-                            });
-                        }
-                    });
-                });
-
-                if(events.length > 0) {
-                    $saveBtn.click(() => {
-                        handleEvents(this, events);
+                            }
+                        });
                     });
     
-                    $('body').append($saveBtn);
-                }
-            });
-        });
+                    // return promise
+                    resolve(events);
+                });
+            });  
+        })
+        
     }
 }
 
