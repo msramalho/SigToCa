@@ -179,17 +179,28 @@ class Moodle extends Extractor {
                         week.days.forEach(day => {
                             if(day.hasevents) {
                                 day.events.forEach(event => {
-                                    events.push({
-                                        from: new Date(event.timestart*1000),
-                                        to: new Date((event.timestart + event.timeduration)*1000),
-                                        download: false,
-                                        location: undefined,
-                                        // extra information
-                                        name: event.name,
-                                        description: event.description,
-                                        type: event.eventtype,
-                                        url: event.viewurl
-                                    });
+									// check if the same event already doesn't exist due recurrency
+									let found = false;
+									for(let ev of events) {
+										if(ev.repeatId === event.repeatId)
+											found = true;
+											break;
+									};
+									// if new event, then add to array
+									if(!found)
+										events.push({
+											from: new Date(event.timestart*1000),
+											to: new Date((event.timestart + event.timeduration)*1000),
+											download: false,
+											location: undefined,
+											// extra information
+											name: event.name,
+											description: event.description,
+											type: event.eventtype,
+											url: event.viewurl,
+											// for dealing with recurrent events
+											repeatId: event.repeatId
+										});
                                 });
                             }
                         });
