@@ -4,7 +4,8 @@ class InfiniteScroll extends Extractor {
 
     constructor() {
         super();
-        this.table = $("table.dados");
+        this.table = $(this.selector = "table.dados");
+        if (!this.apply) this.table = $(this.selector = "table.dadossz");
         this.loading = false // indicates when there is an ongoing ajax request
         this.ready();
     }
@@ -103,14 +104,14 @@ class InfiniteScroll extends Extractor {
             url: this.pages.shift(),
             type: 'GET',
             success: (res) => {
-                let callback = removeDatatableIfExists("table.dados")
+                let callback = removeDatatableIfExists(this.selector)
                 // read the important rows from the result and append to current table
-                let rows = $(res).find("table.dados tr.i, table.dados tr.p").toArray().map(x => x.outerHTML).join("")
+                let rows = $(res).find(`${this.selector} tr.i, ${this.selector} tr.p`).toArray().map(x => x.outerHTML).join("")
                 this.table.find("tbody").append(rows)
                 this.hideLoading()
 
                 // apply the callback, will only execute anything if there was a table
-                callback($('table.dados'))
+                callback($(this.selector))
             },
             fail: () => this.hideLoading()
         });
