@@ -119,11 +119,10 @@ class Moodle extends Extractor {
         let reqUrl = `https://moodle.up.pt/lib/ajax/service.php?sesskey=${this._getSessionID()}&info=core_calendar_get_calendar_event_by_id`;
         
         let myBody = {
-            "index": 0, 
-            "methodname": 
-            "core_calendar_get_calendar_event_by_id", 
-            "args": {
-                "eventid": eventID
+            index: 0, 
+            methodname: 'core_calendar_get_calendar_event_by_id', 
+            args: {
+                eventid: eventID
             }
         };
         
@@ -198,8 +197,10 @@ class Moodle extends Extractor {
 											description: event.description,
 											type: event.eventtype,
 											url: event.viewurl,
-											// for dealing with recurrent events
-											repeatId: event.repeatId
+                                            // for dealing with recurrent events
+                                            id: event.id, // number
+                                            repeatId: event.repeatId, // null or an id
+                                            recurrenceCount: event.eventcount // null or a number
 										});
                                 });
                             }
@@ -210,8 +211,42 @@ class Moodle extends Extractor {
                     resolve(events);
                 });
             });  
-        })
-        
+        });
+    }
+
+    _getEventRecurrence(event) {
+        if(event.repeatId === null || recurrenceCount === null) {
+            return {
+                from: undefined,
+                to: undefined
+            }
+        }
+
+        // how many miliseconds a week has (24*3600*7 = 604800 seconds)
+        const weekMiliseconds = 604800e3;
+
+        // is this the parent event, the origin?
+        if(event.repeatId === event.id) {
+            // we only need to compute when the recurrence ends
+            // we know how many times the event ocurrs
+            // one week 604800 seconds
+            // remember that Date().setTime and .getTime() work in miliseconds
+            return {
+                from: event.from,
+                to: new Date(event.from.getTime() + 604800e3 * event.recurrenceCount)
+            }
+        } else {
+            // it's not the parent, we must compute both from and end
+            // Recurrent events have sequential id's (5013, 5014, ...)
+            // The diff between id and repeatId tells us the weeks difference
+            // thus we can compute the first event ocurrence based on weeks difference and this ocurrence timestamp
+            let from = new Date(event.from.getTime() - (event.id - event.repeatId)*weekMiliseconds);
+            let end = new Date(from.getTime() + 604800e3 * event.recurrenceCount);
+            return {
+                from: from,
+                to: end
+            }
+        }
     }
 }
 
