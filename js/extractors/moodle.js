@@ -25,7 +25,7 @@ class Moodle extends Extractor {
 
                 if(events.length > 0) {
                     $saveBtn.click(() => {
-                        handleEvents(this, events);
+                        handleEvents(this, events, undefined, undefined, true);
                     });
         
                     $(calendarWrapper).parent().append($saveBtn);
@@ -177,31 +177,17 @@ class Moodle extends Extractor {
                     responseJson.data.weeks.forEach(week => {
                         week.days.forEach(day => {
                             if(day.hasevents) {
-                                day.events.forEach(event => {
+                                day.events.forEach(eventJSON => {
 									// check if the same event already doesn't exist due recurrency
 									let found = false;
 									for(let ev of events) {
-										if(ev.repeatId === event.repeatId)
+										if(ev.repeatid === eventJSON.repeatid)
 											found = true;
 											break;
 									};
 									// if new event, then add to array
 									if(!found)
-										events.push({
-											from: new Date(event.timestart*1000),
-											to: new Date((event.timestart + event.timeduration)*1000),
-											download: false,
-											location: undefined,
-											// extra information
-											name: event.name,
-											description: event.description,
-											type: event.eventtype,
-											url: event.viewurl,
-                                            // for dealing with recurrent events
-                                            id: event.id, // number
-                                            repeatId: event.repeatId, // null or an id
-                                            recurrenceCount: event.eventcount // null or a number
-										});
+										events.push(this._parseEvent(eventJSON));
                                 });
                             }
                         });
@@ -214,11 +200,21 @@ class Moodle extends Extractor {
         });
     }
 
-    _getEventRecurrence(event) {
-        if(event.repeatId === null || recurrenceCount === null) {
+    /**
+     * Returns the recurrence for a given event
+     * 
+     * @param {Date} from 
+     * @param {Number} id 
+     * @param {Number} repeatid 
+     * @param {Number} recurrenceCount
+	 * 
+	 * @return {Object} The object has two properties: from, to. Both can be {Date} instances or null when the event doesn't have recurrence
+     */
+    _getEventRecurrence(from, id, repeatid, recurrenceCount) {
+        if(repeatid === null || recurrenceCount === null) {
             return {
-                from: undefined,
-                to: undefined
+                from: null,
+                to: null
             }
         }
 
@@ -226,28 +222,70 @@ class Moodle extends Extractor {
         const weekMiliseconds = 604800e3;
 
         // is this the parent event, the origin?
-        if(event.repeatId === event.id) {
+        if(repeatid === id) {
             // we only need to compute when the recurrence ends
             // we know how many times the event ocurrs
             // one week 604800 seconds
             // remember that Date().setTime and .getTime() work in miliseconds
             return {
-                from: event.from,
-                to: new Date(event.from.getTime() + 604800e3 * event.recurrenceCount)
+                from: from,
+                to: new Date(from.getTime() + weekMiliseconds * (recurrenceCount - 1))
             }
         } else {
             // it's not the parent, we must compute both from and end
             // Recurrent events have sequential id's (5013, 5014, ...)
-            // The diff between id and repeatId tells us the weeks difference
+            // The diff between id and repeatid tells us the weeks difference
             // thus we can compute the first event ocurrence based on weeks difference and this ocurrence timestamp
-            let from = new Date(event.from.getTime() - (event.id - event.repeatId)*weekMiliseconds);
-            let end = new Date(from.getTime() + 604800e3 * event.recurrenceCount);
+            let f = new Date(from.getTime() - (id - repeatid)*weekMiliseconds);
+			let t = new Date(f.getTime() + weekMiliseconds * (recurrenceCount - 1));
+			
             return {
-                from: from,
-                to: end
+                from: f,
+                to: t
             }
         }
-    }
+	}
+	
+	/**
+	 * Parses an event provenient from a server request
+	 * 
+	 * @param {Object} eventJSON The JSON object to be parsed
+	 * 
+	 * @return {Object} An object to represent the event and be used on the application
+	 */
+	_parseEvent(eventJSON) {
+		let recur = this._getEventRecurrence(new Date(eventJSON.timestart * 1e3), eventJSON.id, eventJSON.repeatid, eventJSON.eventcount);
+
+		let parsedEvent = {
+			download: true,
+			location: undefined,
+			// extra information
+			name: eventJSON.name,
+			description: eventJSON.description,
+			type: eventJSON.eventtype,
+			url: eventJSON.viewurl,
+			// recurrence for this event
+			recurrence: recur,
+			// for dealing with recurrent events
+			id: eventJSON.id, // number
+			repeatid: eventJSON.repeatid, // null or an id
+			recurrenceCount: eventJSON.eventcount // null or a number
+		};
+
+		/**
+		 * If the event hasn't recurrence (repeatid == null), the event's from (timestart) and to (timestart + duration) is directly available
+		 * If the event has recurrence, must calculate both from (the parent event start time) and to.
+		 */
+		if(eventJSON.repeatid === null) {
+			parsedEvent.from = new Date(eventJSON.timestart * 1e3);
+			parsedEvent.to = new Date((eventJSON.timestart + eventJSON.timeduration) * 1e3);
+		} else {
+			parsedEvent.from = parsedEvent.recurrence.from;
+			parsedEvent.to = new Date(parsedEvent.from.getTime() + eventJSON.timeduration * 1e3);
+		}
+
+		return parsedEvent;
+	}
 }
 
 // add an instance to the EXTRACTORS variable, and also trigger attachIfPossible due to constructor
