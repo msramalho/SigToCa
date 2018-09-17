@@ -181,9 +181,10 @@ class Moodle extends Extractor {
 									// check if the same event already doesn't exist due recurrency
 									let found = false;
 									for(let ev of events) {
-										if(ev.repeatid === eventJSON.repeatid)
+										if(ev.repeatid === eventJSON.repeatid) {
 											found = true;
 											break;
+										}
 									};
 									// if new event, then add to array
 									if(!found)
