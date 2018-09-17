@@ -3,26 +3,42 @@
 /**
  * display list of events to present to the user and the download interface
  * @param {Extractor} extractor a Extractor descendant that handled the events
- * @param {Date} from for recurring events when do they start [optional]
- * @param {Date} to for recurring events when do they end [optional]
  * @param {Array} events list of objects that need to have (at least) {from, to, location, download}
+ * @param {Date} from for recurring events when do they start (assuming all events have the same recurrence) [optional]
+ * @param {Date} to for recurring events when do they end (assuming all events have the same recurrence) [optional]
+ * @param {Boolean} eventsOwnRecurrence Flag that indicates that each event has it's own recurrence. 'from' and 'to' are ignored when 'true' and each event must have a property 'recurrence: {from: DATE, to: DATE}' 
  */
-function handleEvents(extractor, events, from, to) {
-    createModal(extractor, events, getRepeat(from, to), from.addDays(1), to.addDays(1));
+function handleEvents(extractor, events, from, to, eventsOwnRecurrence) {
+	if(eventsOwnRecurrence)
+		createModal(extractor, events, undefined, undefined, undefined, eventsOwnRecurrence);
+	else 
+		createModal(extractor, events, getRepeat(from, to), from.addDays(1), to.addDays(1), eventsOwnRecurrence);
 }
 
-function createModal(extractor, events, repeat, from, to) {
+function createModal(extractor, events, repeat, from, to, eventsOwnRecurrence) {
     let eventsHtml = "";
     for (let i = 0; i < events.length; i++) {
-        // var google_url = eventToGCalendar(extractor, events[i], repeat);
-        // var outlook_url = eventToOutlookCalendar(extractor, events[i], repeat);
+		// define the repeat object
+		// either use the repeat parameter, if the all events have the same recurrence
+		// or instantiate the repeat object for this particular event
+        let rep;
+        if(eventsOwnRecurrence)
+            rep = getRepeat(events[i].recurrence.from, events[i].recurrence.to);
+        else 
+            rep = repeat;
+
         eventsHtml += `
         <li>
             <input type="checkbox" id="event_${i}" ${events[i].download?"checked":""}>
             <label for="event_${i}" title="${events[i].from.toLocaleDateString("en-uk")} to ${events[i].to.toLocaleDateString("en-uk")}">${extractor.getName(events[i])}</label>
-            ${getDropdown(events[i], extractor, repeat, {target: "dropdown_"+i, divClass:"dropdown right removeFrame"})[0].outerHTML}
+            ${getDropdown(events[i], extractor, rep, {target: "dropdown_"+i, divClass:"dropdown right removeFrame"})[0].outerHTML}
         </li>`;
     }
+
+	let customFromTo = eventsOwnRecurrence ? '' : `<h3>If you want to change the start and end periods (only for the .ics file)</h3>
+	From <input type="date" id="repeat_from" value="${from.toISOString().split('T')[0]}">
+	to <input type="date" id="repeat_to" value="${to.toISOString().split('T')[0]}">
+	<hr>`;
 
     let modal =
         `<div id="sig_eventsModal">
@@ -34,10 +50,8 @@ function createModal(extractor, events, repeat, from, to) {
                     <br>
                 </ul>
 
-                <h3>If you want to change the start and end periods (only for the .ics file)</h3>
-                From <input type="date" id="repeat_from" value="${from.toISOString().split('T')[0]}">
-                to <input type="date" id="repeat_to" value="${to.toISOString().split('T')[0]}">
-                <hr>
+				${customFromTo}
+				
                 <div>
                     <a id="sig_downloadIcs" class="calendarBtn"
                         title="Save this to your Calendar"><img src="${chrome.extension.getURL("icons/calendar.svg")}"/> Download .ics</a>
