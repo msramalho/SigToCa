@@ -178,14 +178,18 @@ class Moodle extends Extractor {
                         week.days.forEach(day => {
                             if(day.hasevents) {
                                 day.events.forEach(eventJSON => {
-									// check if the same event already doesn't exist due recurrency
-									let found = false;
-									for(let ev of events) {
-										if(ev.repeatid === eventJSON.repeatid) {
-											found = true;
-											break;
-										}
-									};
+                                    // check if event has recurrency
+                                    let found = false;
+                                    if(eventJSON.repeatid !== null) {
+                                        // check if the parent event isn't already on the list   
+                                        for(let ev of events) {
+                                            if(ev.repeatid === eventJSON.repeatid ) {
+                                                found = true;
+                                                break;
+                                            }
+                                        };                                 
+                                    }
+									
 									// if new event, then add to array
 									if(!found)
 										events.push(this._parseEvent(eventJSON));
