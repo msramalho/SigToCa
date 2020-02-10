@@ -82,6 +82,46 @@ class ReservationExtractor extends Extractor {
         }
     }
 
+    /**
+     * Parses a table row that among other details contains
+     * - date (typically in yyyy-mm-dd format)
+     * - weekday name (e.g. Monday)
+     * - start time (e.g 9:00)
+     * - end time
+     * - duration
+     * - room (e.g C605)
+     * 
+     * Example:
+     * ```
+     * <tr ...>
+     *  <td ...>2020-02-10</td>
+     *  <td ...><span class="textopequeno">Segunda</span></td>
+     *  <td ...>09:00</td>
+     *  <td ...>17:00</td>
+     *  <td ...>08:00</td>
+     *  <td ...><a href="..." ...>C613</a></td>
+     * </tr>
+     * ```
+
+     * @param {HTMLElement} node 
+     * @returns {}
+     */
+    _parseEventFromTableRow(node) {
+        const data_nodes = node.children;
+        const date = data_nodes[0].innerText;
+        const start_time = data_nodes[2].innerText;
+        const end_time = data_nodes[3].innerText;
+        const room = data_nodes[5].innerText;
+        const room_link = data_nodes[5].querySelector('a').href;
+
+        return {
+            from: new Date(`${date} ${start_time}`),
+            to: new Date(`${date} ${end_time}`),
+            location: room,
+            room_link: room_link
+        }
+    }
+
     convertToURI(event) {
         return event;
     }
