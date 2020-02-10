@@ -126,6 +126,16 @@
         "js/extractors/bills.js"
       ],
       "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://*.up.pt/*res_recursos_geral.pedidos_view*",
+        "https://*.up.pt/*RES_RECURSOS_GERAL.PEDIDOS_VIEW*"
+      ],
+      "js": [
+        "js/extractors/resources.js"
+      ],
+      "run_at": "document_end"
     }
   ],
   "permissions": [
