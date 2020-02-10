@@ -2,6 +2,7 @@ class ReservationExtractor extends Extractor {
     constructor() {
         super();
         this.ready();
+        this.reservationSelector = "#conteudoinner table:nth-of-type(2) tr:nth-of-type(2)";
     }
 
     structure() {
@@ -44,6 +45,10 @@ class ReservationExtractor extends Extractor {
     }
 
     attachIfPossible() {
+        this._handleReservation();
+    }
+
+    _handleReservation() {
         // create the event
         let event = this._getEvent();
         // create styles to override default dropdown rules
@@ -56,13 +61,13 @@ class ReservationExtractor extends Extractor {
         let dropDownEl = getDropdown(event, this, null, style);
         let td = document.createElement("td");
         td.append(dropDownEl[0]);
-        document.querySelector('#conteudoinner table:nth-of-type(2) tr:nth-of-type(2)').append(td);
+        document.querySelector(this.reservationSelector).append(td);
         // attach event listeners
         setDropdownListeners(this, undefined);
     }
 
     _getEvent() {
-        let row_el = document.querySelector('#conteudoinner table:nth-of-type(2) tr:nth-of-type(2)').children;
+        let row_el = document.querySelector(this.reservationSelector).children;
         let date = row_el[0].innerText;
         let hour_from = row_el[2].innerText;
         let hour_to = row_el[3].innerText;
