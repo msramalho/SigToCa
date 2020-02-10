@@ -3,6 +3,7 @@ class ReservationExtractor extends Extractor {
         super();
         this.ready();
         this.reservationSelector = "#conteudoinner table:nth-of-type(2) tr:nth-of-type(2)";
+        this.reservationListSelector = "table.dados table.dados";
     }
 
     structure() {
@@ -80,6 +81,23 @@ class ReservationExtractor extends Extractor {
             location: room,
             room_link: room_link
         }
+    }
+
+    /**
+     * Parses the list of reservations and creates an array of events
+     * 
+     * @return {{from: Date, to:Date, location: string, room_link: string}[]}
+     */
+    _getEventsFromList() {
+        const reservations = document.querySelectorAll(this.reservationListSelector);
+        let events = [];
+        for(let res of reservations) {
+            // the table row node, <td>, that has the desired data (date, start/end time, room, ...)
+            const tableRowEl = res.querySelector('tr:nth-of-type(2)');
+            // extract information from the node and append the event object
+            events.push(this._parseEventFromTableRow(tableRowEl));
+        }
+        return events;
     }
 
     /**
