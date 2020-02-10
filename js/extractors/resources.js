@@ -46,7 +46,12 @@ class ReservationExtractor extends Extractor {
     }
 
     attachIfPossible() {
-        this._handleReservation();
+        if (window.location.href.match(/res_recursos_geral.pedidos_view/i))
+            this._handleReservation();
+        else if (window.location.href.match(/res_recursos_geral.pedidos_list/i))
+            this._handleListReservations();
+        else
+            console.warn("Unknown location. ReservationExtractor doesn't recognize this page");
     }
 
     _handleReservation() {
@@ -65,6 +70,22 @@ class ReservationExtractor extends Extractor {
         document.querySelector(this.reservationSelector).append(td);
         // attach event listeners
         setDropdownListeners(this, undefined);
+    }
+
+    _handleListReservations() {
+        // get all events
+        const events = this._getEventsFromList();
+        // create button element
+        let saveBtn = $(`
+            <a class="calendarBtn" style="width: 5rem;" title="Save exams to your Calendar">
+                <img src="${chrome.extension.getURL("icons/calendar.svg")}"/>
+            </a>`
+        );
+        // inject button
+        $('#conteudoinner > table.dados').before(saveBtn);
+        saveBtn.click(() => {
+            handleEvents(this, events);
+        });
     }
 
     _getEvent() {
@@ -91,7 +112,7 @@ class ReservationExtractor extends Extractor {
     _getEventsFromList() {
         const reservations = document.querySelectorAll(this.reservationListSelector);
         let events = [];
-        for(let res of reservations) {
+        for (let res of reservations) {
             // the table row node, <td>, that has the desired data (date, start/end time, room, ...)
             const tableRowEl = res.querySelector('tr:nth-of-type(2)');
             // extract information from the node and append the event object

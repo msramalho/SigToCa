@@ -130,7 +130,9 @@
     {
       "matches": [
         "https://*.up.pt/*res_recursos_geral.pedidos_view*",
-        "https://*.up.pt/*RES_RECURSOS_GERAL.PEDIDOS_VIEW*"
+        "https://*.up.pt/*RES_RECURSOS_GERAL.PEDIDOS_VIEW*",
+        "https://*.up.pt/*res_recursos_geral.pedidos_list*",
+        "https://*.up.pt/*RES_RECURSOS_GERAL.PEDIDOS_LIST*"
       ],
       "js": [
         "js/extractors/resources.js"
