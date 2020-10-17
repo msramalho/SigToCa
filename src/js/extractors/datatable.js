@@ -82,16 +82,33 @@ class DataTable extends Extractor {
 DataTable.datatableOptions = {
     paging: false,
     order: [],
-    dom: 'Bfrtip',
-    buttons: ['copyHtml5', {
+    /**
+     * Define the table control elements to appear on the page and in what order
+     * @see {@link https://datatables.net/reference/option/dom}
+     *
+     * Moreover, we also use this to wrap around DataTable elements in `div`s with
+     * our own class names. This enables us to create CSS rules with more specificity
+     * thus overriding the library defaults with more ease
+     *
+     * 1. A wrapper div with class 'SigTools__dt'
+     * 2. B -> the buttons for copying and exporting table data
+     * 3. f -> filter inputs (search box)
+     * 4. r -> ?
+     * 5. t -> the table itself with class 'SigTools__dt__table'
+     * 6. i -> information summary
+     * 7. p -> pagination control
+     */
+    dom: `<"SigTools__dt"Bfr<"SigTools__dt__table"t>ip>`,
+    buttons: ['copyHtml5', 'print', {
         extend: 'csvHtml5',
         charset: 'UTF-8',
         bom: true
     }, {
-        extend: 'excelHtml5',
-        charset: 'UTF-8',
-        bom: true
-    }, 'print'],
+            extend: 'excelHtml5',
+            charset: 'UTF-8',
+            bom: true
+        }
+    ],
 }
 
 /**
@@ -104,7 +121,7 @@ function removeDatatableIfExists(selector) {
         table.destroy()
         return el => el.dataTable(DataTable.datatableOptions)
     }
-    return (_) => {}
+    return (_) => { }
 }
 
 // add an instance to the EXTRACTORS variable, and also trigger attachIfPossible due to constructor
