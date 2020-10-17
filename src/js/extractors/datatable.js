@@ -41,10 +41,35 @@ class DataTable extends Extractor {
         $("#ordenacao").remove()
         $("th a").remove()
 
-        // inject dynamic tables
+        /**
+         * In order to DataTables work properly, we must have a <thead> element
+         * Some tables in Sigarra have it, others don't.
+         * When the <thead> is missing, and if the table consists of multiple
+         * table rows, `<tr>`, the first one could be a header row. If it is,
+         * all child elements are table header cells, `<th>`.
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table}
+         * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr}
+         */
+        if (!table.find("thead").length) {
+            // <thead> is missing. try to find a "header row", i.e. a <tr> consisting
+            // of <th> cells only
+            const $theader = table.find("tr").filter(function (_, elem) {
+                return $(elem).children("th").length === $(elem).children().length
+            });
+
+            // check if any header row was found. if not, return
+            if (!$theader.length)
+                return;
+
+            // remove current header
+            $theader.remove();
+
+            // wrap previous header row in <thead>
+            table.prepend(`<thead>${$theader.html()}</thead>`);
+        }
+
+        // inject dynamic tables title
         table.prev().after($(`<h2 class="noBorder">SigTools Dynamic Tables</h2>`))
-        table.prepend($(`<thead>${table.find("tr").html()}</thead>`))
-        table.find("tbody tr:has(> th)").remove()
 
         // sorting guide: https://www.datatables.net/plug-ins/sorting/
         table.dataTable(DataTable.datatableOptions);
