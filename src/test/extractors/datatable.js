@@ -2,7 +2,7 @@
 
 describe("Datatables", () => {
 
-    describe("Test all valid tables", () => {
+    describe("Test out-of-the-box valid tables", () => {
         let dt = null;
 
         /**
@@ -10,7 +10,7 @@ describe("Datatables", () => {
          */
         before(() => {
             return new Promise((resolve) =>
-                updatejQueryContext("test/pages/datatables/all-valid.html").then(() => {
+                updatejQueryContext("test/pages/datatables/all_valid.html").then(() => {
                     dt = new DataTable();
                     dt.attachIfPossible();
                     resolve();
@@ -22,7 +22,7 @@ describe("Datatables", () => {
          */
         it("Find all candidate HTML tables", () => {
             chai.assert.isArray(dt.tables, "tables is array");
-            chai.assert.equal(dt.tables.length, 4, "Failed to detect all candidate tables");
+            chai.assert.equal(dt.tables.length, 3, "Failed to detect all candidate tables");
         })
 
         /**

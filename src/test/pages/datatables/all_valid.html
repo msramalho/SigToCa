@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.js"></script> -->
+  </head>
+  <body>
+    <!-- Normal table with thead and tbody -->
+    <table id="table-1" class="dados">
+      <thead>
+        <tr>
+          <th>Column 1</th>
+          <th>Column 2</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Row 1 Data 1</td>
+          <td>Row 1 Data 2</td>
+        </tr>
+        <tr>
+          <td>Row 2 Data 1</td>
+          <td>Row 2 Data 2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Table with missing tbody -->
+    <table id="table-2" class="dadossz">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Venue</th>
+        </tr>
+      </thead>
+      <tr>
+        <td>12 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>15 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>16 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>19 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+    </table>
+
+    <!-- Table col and row spans on the header. Rows have header cells as well -->
+    <!-- Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr#row_and_column_spanning -->
+    <table id="table-spans-1">
+      <thead>
+        <tr>
+          <th rowspan="2">Name</th>
+          <th rowspan="2">ID</th>
+          <th colspan="2">Membership Dates</th>
+          <th rowspan="2">Balance</th>
+        </tr>
+        <tr>
+          <th>Joined</th>
+          <th>Canceled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Margaret Nguyen</td>
+          <td>427311</td>
+          <td><time datetime="2010-06-03">June 3, 2010</time></td>
+          <td>n/a</td>
+          <td>0.00</td>
+        </tr>
+        <tr>
+          <th scope="row">Edvard Galinski</td>
+          <td>533175</td>
+          <td><time datetime="2011-01-13">January 13, 2011</time></td>
+          <td><time datetime="2017-04-08">April 8, 2017</time></td>
+          <td>37.00</td>
+        </tr>
+        <tr>
+          <th scope="row">Hoshi Nakamura</td>
+          <td>601942</td>
+          <td><time datetime="2012-07-23">July 23, 2012</time></td>
+          <td>n/a</td>
+          <td>15.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+
+  <script>
+    // $(document).ready(function() {
+    //   $('table').each((_, t) => $(t).DataTable());
+    // } );
+  </script>
+</html>
