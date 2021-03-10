@@ -35,9 +35,6 @@ class DataTable extends Extractor {
         if (!this.validTable(table))
             return;
 
-        // return if table not found or not applied
-        //if (!table.length || !this.validTable(table)) return
-
         // remove sigarra stuff that is useless
         $("#ordenacao").remove()
         $("th a").remove()
@@ -51,7 +48,7 @@ class DataTable extends Extractor {
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table}
          * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr}
          */
-        if (!table.find("thead").length) {
+        if (!table.find("> thead").length) {
             // <thead> is missing. try to find a "header row", i.e. a <tr> consisting
             // of <th> cells only
             const $theader = table.find("tr").filter(function (_, elem) {
@@ -98,6 +95,33 @@ class DataTable extends Extractor {
         //let first = table.find("tr:has(> td)").eq(0).find("td").toArray().length
         //return cols == first && table.find("td[rowspan],td[colspan]").length == 0
         return true;
+    }
+
+    /**
+     * 
+     * @param {*} $table 
+     * @returns 
+     */
+    __getHeaderRows($table) {
+        /** A table row, `<tr>` is a header row, if all children nodes are `<th>` cells */
+        const isHeaderRow = ($r) => $r.find("th").length === $r.children().length;
+        // find the first table row (not necessarially the first table children (e.g. <caption>))
+        const $firstRow = $table.find("tr:first-child");
+        // if the first table row is a header row, iterate over the sibling table rows while they are headers
+        if (isHeaderRow($firstRow)) {
+            // iterate over the sibling rows, and collect the header ones
+            const $rows = $firstRow.find("~ tr");
+            const $headerRows = [$firstRow];
+            for (let i = 0; i < $rows.length; i++) {
+                if (isHeaderRow($($rows[i])))
+                    $headerRows.push($($rows[i]));
+                else
+                    break;
+            }
+            return $headerRows;
+        } else {
+            return [];
+        }
     }
 
     /**
