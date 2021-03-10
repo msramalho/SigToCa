@@ -32,10 +32,11 @@ class DataTable extends Extractor {
     }
 
     attachTableIfPossible(table) {
+        if (!this.validTable(table))
+            return;
+
         // return if table not found or not applied
-        if (!table.length || !this.validTable(table)) return
-        if (!table.find("tr").toArray().length) return //if table is empty
-        if (this.disable_one_row && table.find("tr").toArray().length == 2) return //if table only has header and one row
+        //if (!table.length || !this.validTable(table)) return
 
         // remove sigarra stuff that is useless
         $("#ordenacao").remove()
@@ -70,7 +71,6 @@ class DataTable extends Extractor {
 
         // inject dynamic tables title
         table.prev().after($(`<h2 class="noBorder">SigTools Dynamic Tables</h2>`))
-
         // sorting guide: https://www.datatables.net/plug-ins/sorting/
         table.dataTable(DataTable.datatableOptions);
     }
@@ -79,24 +79,39 @@ class DataTable extends Extractor {
      * Check if the current table is valid for applying datatables
      */
     validTable(table) {
+        // check if table is not empty
+        if (table.find("tr").toArray().length === 0)
+            return false;
+
+        // check if table has single row. such tables can be blacklisted by the user
+        if (this.disable_one_row && table.find("tr").toArray().length <= 2)
+            return false;
+
+        // check if table is missing the <thead>, as required by DataTables lib
+        // TODO
+
+        // modify tables to make them valid
         this.performCustomValidation(table)
-        let cols = table.find("tr:has(> th)").find("th").toArray().length
-        let first = table.find("tr:has(> td)").eq(0).find("td").toArray().length
-        return cols == first && table.find("td[rowspan],td[colspan]").length == 0
+
+
+        //let cols = table.find("tr:has(> th)").find("th").toArray().length
+        //let first = table.find("tr:has(> td)").eq(0).find("td").toArray().length
+        //return cols == first && table.find("td[rowspan],td[colspan]").length == 0
+        return true;
     }
 
     /**
      * Call specific functions for specific pages with strange tables
      */
     performCustomValidation(table) {
-        if(this.url.includes("coop_candidatura_geral.ver_colocacoes_aluno")) this.transformErasmus(table)
+        if (this.url.includes("coop_candidatura_geral.ver_colocacoes_aluno")) this.transformErasmus(table)
     }
 
     /**
      * Fix table for the erasmus listings page
      * @param {Table} table
      */
-    transformErasmus(table){
+    transformErasmus(table) {
         $(table.find("tr:first-child th[colspan=2]").replaceWith(table.find("tr:nth-child(2)").html()))
         table.find("tr:nth-child(2)").remove()
         table.find('th[rowspan=2]').attr('rowspan', '1');

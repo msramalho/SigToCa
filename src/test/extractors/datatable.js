@@ -30,7 +30,7 @@ describe("Datatables", () => {
          */
         it("Test table validator function", () => {
             for (const t of dt.tables) {
-                chai.assert.strictEqual(true, dt.validTable($(t)), "Failed validation on " + t.id);
+                chai.assert.isTrue(dt.validTable($(t)), "Failed validation on " + t.id);
             }
         });
 
@@ -65,4 +65,25 @@ describe("Datatables", () => {
         })
     })
 
+    describe("Test singlerow", () => {
+        it("Single row not disabled", () => {
+            updatejQueryContext("test/pages/datatables/single_row.html").then(() => {
+                dt = new DataTable();
+                dt.disable_one_row = false;
+                for (const t of dt.tables) {
+                    chai.assert.isTrue(dt.validTable($(t)));
+                }
+            });
+        })
+
+        it("Single row disabled", () => {
+            updatejQueryContext("test/pages/datatables/single_row.html").then(() => {
+                dt = new DataTable();
+                dt.disable_one_row = true;
+                for (const t of dt.tables) {
+                    chai.assert.isFalse(dt.validTable($(t)));
+                }
+            });
+        })
+    })
 })
