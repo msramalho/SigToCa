@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.css"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.24/datatables.min.js"></script> -->
+  </head>
+  <body>
+    <!-- Table with missing tbody and thead, but implicit header row exists -->
+    <table id="table-implicit-header-1" class="dadossz">
+      <!-- <thead> -->
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Venue</th>
+        </tr>
+      <!-- </thead> -->
+      <tr>
+        <td>12 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>15 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+    </table>
+
+    <!-- Implicit header row exists, but header rows are not the first elements -->
+    <table id="table-implicit-header-2" class="dadossz">
+        <caption>Lorem Ipsum</caption>
+        <colgroup>
+            <col span="2" style="background-color:red">
+            <col style="background-color:yellow">
+        </colgroup>
+        <!-- <thead> -->
+          <tr>
+            <th>Date</th>
+            <th>Event</th>
+            <th>Venue</th>
+          </tr>
+        <!-- </thead> -->
+        <tr>
+          <td>12 February</td>
+          <td>Waltz with Strauss</td>
+          <td>Main Hall</td>
+        </tr>
+        <tr>
+          <td>15 February</td>
+          <td>Waltz with Strauss</td>
+          <td>Main Hall</td>
+        </tr>
+      </table>
+
+    <!-- Table with missing tbody and thead, but implicit header row exists. Double header rows -->
+    <table id="table-implicit-header-3" class="dadossz">
+      <!-- <thead> -->
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Venue</th>
+        </tr>
+        <tr>
+          <th>Col1</th>
+          <th>Col2</th>
+          <th>Col3</th>
+        </tr>
+      <!-- </thead> -->
+      <tr>
+        <td>12 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>15 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>16 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+      <tr>
+        <td>19 February</td>
+        <td>Waltz with Strauss</td>
+        <td>Main Hall</td>
+      </tr>
+    </table>
+
+    <!-- Table col and row spans on the header (implicit). Rows have header cells as well -->
+    <!-- Source: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr#row_and_column_spanning -->
+    <table id="table-implicit-header-4" class="dadossz">
+      <!-- <thead> -->
+        <tr>
+          <th rowspan="2">Name</th>
+          <th rowspan="2">ID</th>
+          <th colspan="2">Membership Dates</th>
+          <th rowspan="2">Balance</th>
+        </tr>
+        <tr>
+          <th>Joined</th>
+          <th>Canceled</th>
+        </tr>
+      <!-- </thead> -->
+        <tr>
+          <th scope="row">Margaret Nguyen</td>
+          <td>427311</td>
+          <td><time datetime="2010-06-03">June 3, 2010</time></td>
+          <td>n/a</td>
+          <td>0.00</td>
+        </tr>
+        <tr>
+          <th scope="row">Edvard Galinski</td>
+          <td>533175</td>
+          <td><time datetime="2011-01-13">January 13, 2011</time></td>
+          <td><time datetime="2017-04-08">April 8, 2017</time></td>
+          <td>37.00</td>
+        </tr>
+        <tr>
+          <th scope="row">Hoshi Nakamura</td>
+          <td>601942</td>
+          <td><time datetime="2012-07-23">July 23, 2012</time></td>
+          <td>n/a</td>
+          <td>15.00</td>
+        </tr>
+    </table>
+
+    <!-- No explicit header -->
+    <table id="table-no-header-1" class="dados">
+        <tr>
+            <td>CPU</td>
+            <td>Freq</td>
+            <td>Cores</td>
+            <td>Cache</td>
+        </tr>
+        <tr>
+            <td>Intel</td>
+            <td>3GHz</td>
+            <td>4</td>
+            <td>3MB</td>
+        </tr>
+    </table>
+
+    <!-- Header is not on top -->
+    <table id="table-no-header-2" class="dados">
+        <tr>
+            <td>Intel</td>
+            <td>3GHz</td>
+            <td>4</td>
+            <td>3MB</td>
+        </tr>
+        <tr>
+            <td>Intel</td>
+            <td>3.2GHz</td>
+            <td>4</td>
+            <td>4MB</td>
+        </tr>
+        <tr>
+            <th>CPU</th>
+            <th>Freq</th>
+            <th>Cores</th>
+            <th>Cache</th>
+        </tr>
+        <tr>
+            <td>AMD</td>
+            <td>4GHz</td>
+            <td>6</td>
+            <td>2MB</td>
+        </tr>
+    </table>
+
+    <!-- Implicit header exists. Moreover, a random header row exists on the middle and should not be considered -->
+    <table id="table-implicit-header-5" class="dados">
+        <tr class="first">
+            <th>CPU</th>
+            <th>Freq</th>
+            <th>Cores</th>
+            <th>Cache</th>
+        </tr>
+        <tr>
+            <td>Intel</td>
+            <td>3GHz</td>
+            <td>4</td>
+            <td>3MB</td>
+        </tr>
+        <tr>
+            <td>Intel</td>
+            <td>3.2GHz</td>
+            <td>4</td>
+            <td>4MB</td>
+        </tr>
+        <tr class="idk">
+            <th>CPU (name)</th>
+            <th>Freq (GHz)</th>
+            <th>Cores</th>
+            <th>Cache (MB)</th>
+        </tr>
+        <tr>
+            <td>AMD</td>
+            <td>4GHz</td>
+            <td>6</td>
+            <td>2MB</td>
+        </tr>
+    </table>
+  </body>
+
+  <script>
+    // $(document).ready(function() {
+    //   $('table').each((_, t) => $(t).DataTable());
+    // } );
+  </script>
+</html>

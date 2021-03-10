@@ -1,8 +1,7 @@
 //var assert = require('chai').assert;
 
 describe("Datatables", () => {
-
-    describe("Test out-of-the-box valid tables", () => {
+    describe("Out-of-the-box valid tables", () => {
         let dt = null;
 
         /**
@@ -14,8 +13,9 @@ describe("Datatables", () => {
                     dt = new DataTable();
                     dt.attachIfPossible();
                     resolve();
-                }));
-        })
+                })
+            );
+        });
 
         /**
          * Ensure the extractor finds all possible tables
@@ -40,9 +40,13 @@ describe("Datatables", () => {
         it("Check DataTable loads correctly on all candidates", () => {
             /** if DataTables lib applied on table correctly, then the <table> node has a new class "dataTable" */
             for (const t of dt.tables) {
-                chai.assert.include(t.getAttribute("class"), "dataTable", "DataTable not loaded");
+                chai.assert.include(
+                    t.getAttribute("class"),
+                    "dataTable",
+                    "DataTable not loaded"
+                );
             }
-        })
+        });
 
         /**
          * Check if the <table> node is wrapped with a <div>, created to facilitate CSS customization
@@ -50,9 +54,13 @@ describe("Datatables", () => {
         it("Check table is wrapped", () => {
             // Table node must be wrapped on a div.SigTools__dt__table
             for (const t of dt.tables) {
-                chai.assert.equal(t.parentElement.getAttribute("class"), "SigTools__dt__table", "DataTable not wrapped");
+                chai.assert.equal(
+                    t.parentElement.getAttribute("class"),
+                    "SigTools__dt__table",
+                    "DataTable not wrapped"
+                );
             }
-        })
+        });
 
         /**
          * Check if <table> node and all DataTable elements (filters, buttons) are wrapped in a <div> element
@@ -60,12 +68,16 @@ describe("Datatables", () => {
         it("Check table and DataTable are wrapped", () => {
             // Table node and parent DataTable nodes must be wrapped on a div.SigTools__dt__table
             for (const t of dt.tables) {
-                chai.assert.equal(t.parentElement.parentElement.getAttribute("class"), "SigTools__dt", "DataTable not wrapped");
+                chai.assert.equal(
+                    t.parentElement.parentElement.getAttribute("class"),
+                    "SigTools__dt",
+                    "DataTable not wrapped"
+                );
             }
-        })
-    })
+        });
+    });
 
-    describe("Test singlerow", () => {
+    describe("Single row feature (user setting)", () => {
         it("Single row not disabled", () => {
             updatejQueryContext("test/pages/datatables/single_row.html").then(() => {
                 dt = new DataTable();
@@ -74,7 +86,7 @@ describe("Datatables", () => {
                     chai.assert.isTrue(dt.validTable($(t)));
                 }
             });
-        })
+        });
 
         it("Single row disabled", () => {
             updatejQueryContext("test/pages/datatables/single_row.html").then(() => {
@@ -84,6 +96,46 @@ describe("Datatables", () => {
                     chai.assert.isFalse(dt.validTable($(t)));
                 }
             });
-        })
-    })
-})
+        });
+    });
+
+    describe("Test tables with implicit headers", () => {
+        let dt = null;
+
+        /**
+         * Loads sample file with multiple valid tables
+         */
+        before(() => {
+            return new Promise((resolve) =>
+                updatejQueryContext("test/pages/datatables/implicit_headers.html").then(
+                    () => {
+                        dt = new DataTable();
+                        resolve();
+                    }
+                )
+            );
+        });
+
+        it("Find implicit headers", () => {
+            const customAssert = (tableId, numHeaderRows, msg) => {
+                const $t = $(`#${tableId}`).first();
+                const $h = dt.__getHeaderRows($t);
+                chai.assert.strictEqual(
+                    $h.length,
+                    numHeaderRows,
+                    msg || `Table #${tableId} has ${numHeaderRows} header row(s)`
+                );
+                return $h;
+            };
+
+            customAssert("table-implicit-header-1", 1);
+            customAssert("table-implicit-header-2", 1);
+            customAssert("table-implicit-header-3", 2);
+            customAssert("table-implicit-header-4", 2);
+            customAssert("table-no-header-1", 0);
+            customAssert("table-no-header-2", 0);
+            // double check it catched the correct top header row
+            chai.assert.strictEqual(customAssert("table-implicit-header-5", 1)[0][0].getAttribute("class"), "first");
+        });
+    });
+});
